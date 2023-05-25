@@ -1,0 +1,32 @@
+name: Upload to S3
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: <us-east-2>
+
+      - name: Create S3 bucket
+        run: |
+          aws s3api create-bucket \
+            --bucket <donis3> \
+            --region <us-east-2> \
+            --create-bucket-configuration LocationConstraint=<us-east-2>
+
+      - name: Upload file to S3
+        run: |
+          aws s3 cp <path-to-file> s3://<donis3>/
